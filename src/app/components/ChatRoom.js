@@ -384,15 +384,18 @@ export default function ChatRoom({ user, otherUser }) {
                     <div 
                       onClick={(e) => { e.stopPropagation(); setActiveMenuId(activeMenuId === msg.id ? null : msg.id); }}
                       style={{
-                        backgroundColor: msg.sender === user ? 'rgba(56, 189, 248, 0.85)' : 'rgba(30, 41, 59, 0.9)',
-                        backdropFilter: 'blur(12px)',
+                        backgroundColor: msg.sender === user ? 'rgba(30, 41, 59, 0.75)' : 'rgba(15, 23, 42, 0.75)',
+                        backdropFilter: 'blur(15px)',
                         color: msg.sender === user ? 'white' : 'var(--text-primary)',
-                        padding: '0.6rem 1rem',
+                        padding: '0.75rem 1.25rem',
                         fontSize: msgFontSize,
-                        borderRadius: msg.sender === user ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                        borderRadius: msg.sender === user ? '24px 24px 6px 24px' : '24px 24px 24px 6px',
                         wordBreak: 'break-word',
-                        boxShadow: '0 8px 25px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.2)',
-                        border: '1px solid rgba(255,255,255,0.15)',
+                        boxShadow: '0 10px 30px rgba(0,0,0,0.6)',
+                        borderTop: '1.5px solid rgba(255,255,255,0.35)',
+                        borderLeft: '1px solid rgba(255,255,255,0.1)',
+                        borderRight: '1px solid rgba(255,255,255,0.1)',
+                        borderBottom: '1px solid rgba(0,0,0,0.6)',
                         cursor: 'pointer',
                         position: 'relative'
                       }}
@@ -449,21 +452,24 @@ export default function ChatRoom({ user, otherUser }) {
 
                     {/* Context Menu Dropdown */}
                     {activeMenuId === msg.id && (
-                      <div 
-                        onClick={(e) => e.stopPropagation()}
-                        style={{ 
-                          position: 'absolute', top: '100%', 
-                          right: msg.sender === user ? 0 : 'auto', 
-                          left: msg.sender === user ? 'auto' : 0, 
-                          backgroundColor: 'rgba(15, 23, 42, 0.98)', padding: '0.5rem', borderRadius: '12px', 
-                          zIndex: 10, display: 'flex', gap: '0.25rem', 
-                          boxShadow: '0 10px 30px rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.2)',
-                          marginTop: '0.5rem', animation: 'fadeIn 0.2s ease-out'
-                        }}
-                      >
-                        <div style={{ display: 'flex', gap: '0.5rem', paddingRight: '0.5rem', borderRight: '1px solid rgba(255,255,255,0.1)' }}>
-                          {['❤️', '😂', '😮', '😢', '👍'].map(emoji => (
-                            <button key={emoji} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', padding: '0.2rem', transition: 'transform 0.1s' }} onClick={() => handleReact(msg.id, emoji)} onMouseOver={(e) => e.target.style.transform = 'scale(1.2)'} onMouseOut={(e) => e.target.style.transform = 'scale(1)'}>
+                      <>
+                        {/* Emoji Pill (Above) */}
+                        <div 
+                          onClick={(e) => e.stopPropagation()}
+                          style={{ 
+                            position: 'absolute', bottom: '100%', 
+                            right: msg.sender === user ? 0 : 'auto', 
+                            left: msg.sender === user ? 'auto' : 0, 
+                            backgroundColor: 'rgba(30, 41, 59, 0.95)', padding: '0.4rem 0.8rem', borderRadius: '30px', 
+                            zIndex: 10, display: 'flex', gap: '0.5rem', 
+                            boxShadow: '0 10px 30px rgba(0,0,0,0.7)', borderTop: '1.5px solid rgba(255,255,255,0.3)',
+                            borderBottom: '1px solid rgba(0,0,0,0.5)',
+                            marginBottom: '0.5rem', animation: 'fadeIn 0.2s ease-out',
+                            backdropFilter: 'blur(20px)'
+                          }}
+                        >
+                          {['❤️','😂','😮','😢','👍'].map(emoji => (
+                            <button key={emoji} onClick={() => handleReact(msg.id, emoji)} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', padding: '0.2rem', transition: 'transform 0.1s' }} onMouseOver={(e) => e.target.style.transform='scale(1.2)'} onMouseOut={(e) => e.target.style.transform='scale(1)'}>
                               {emoji}
                             </button>
                           ))}
@@ -512,7 +518,7 @@ export default function ChatRoom({ user, otherUser }) {
         </div>
       )}
 
-      <div style={{ margin: '0 1rem 1rem 1rem', padding: '0.5rem', borderRadius: '30px', backgroundColor: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(25px)', boxShadow: '0 15px 40px rgba(0,0,0,0.9), inset 0 2px 2px rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.15)' }}>
+      <div style={{ margin: '0 1rem 1rem 1rem', padding: '0.5rem', borderRadius: '40px', backgroundColor: 'rgba(10, 5, 20, 0.85)', backdropFilter: 'blur(30px)', boxShadow: '0 15px 40px rgba(0,0,0,0.9), 0 0 20px rgba(219, 39, 119, 0.25)', borderTop: '1.5px solid rgba(255,255,255,0.25)', borderLeft: '1px solid rgba(255,255,255,0.1)', borderRight: '1px solid rgba(255,255,255,0.1)', borderBottom: '1px solid rgba(0,0,0,0.8)' }}>
         <form onSubmit={sendMessage} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <input 
             type="file" 
@@ -523,10 +529,10 @@ export default function ChatRoom({ user, otherUser }) {
           <button 
             type="button" 
             onClick={() => fileInputRef.current?.click()} 
-            style={{ padding: '0.75rem', borderRadius: '50%', border: 'none', backgroundColor: 'transparent', color: 'white', cursor: 'pointer', transition: 'background 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            style={{ padding: '0.75rem', borderRadius: '50%', border: 'none', backgroundColor: 'transparent', color: 'rgba(255,255,255,0.8)', cursor: 'pointer', transition: 'color 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             disabled={uploading}
-            onMouseOver={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.1)'}
-            onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
+            onMouseOver={(e) => e.target.style.color = 'white'}
+            onMouseOut={(e) => e.target.style.color = 'rgba(255,255,255,0.8)'}
           >
             {uploading ? '⏳' : '📎'}
           </button>
@@ -536,11 +542,11 @@ export default function ChatRoom({ user, otherUser }) {
             placeholder="Type a message... (swipe right to reply)" 
             value={newMessage}
             onChange={handleTyping}
-            style={{ flex: 1, padding: '0.75rem 1.25rem', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.15)', backgroundColor: 'rgba(255,255,255,0.08)', color: 'white', outline: 'none', transition: 'border 0.2s, background 0.2s', fontSize: textSize === 'small' ? '0.85rem' : textSize === 'large' ? '1.15rem' : '1rem' }}
-            onFocus={(e) => { e.target.style.border = '1px solid rgba(99, 102, 241, 0.6)'; e.target.style.backgroundColor = 'rgba(255,255,255,0.12)' }}
-            onBlur={(e) => { e.target.style.border = '1px solid rgba(255,255,255,0.15)'; e.target.style.backgroundColor = 'rgba(255,255,255,0.08)' }}
+            style={{ flex: 1, padding: '0.85rem 1.25rem', borderRadius: '30px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'rgba(255,255,255,0.05)', color: 'white', outline: 'none', transition: 'all 0.2s', fontSize: textSize === 'small' ? '0.85rem' : textSize === 'large' ? '1.15rem' : '1rem' }}
+            onFocus={(e) => { e.target.style.border = '1px solid rgba(219, 39, 119, 0.5)'; e.target.style.backgroundColor = 'rgba(255,255,255,0.1)'; e.target.style.boxShadow = '0 0 10px rgba(219, 39, 119, 0.2)' }}
+            onBlur={(e) => { e.target.style.border = '1px solid rgba(255,255,255,0.1)'; e.target.style.backgroundColor = 'rgba(255,255,255,0.05)'; e.target.style.boxShadow = 'none' }}
           />
-          <button type="submit" style={{ padding: '0.75rem 1.5rem', borderRadius: '24px', border: 'none', background: 'linear-gradient(135deg, #6366f1, #a855f7)', color: 'white', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 0 15px rgba(168, 85, 247, 0.5)', transition: 'transform 0.1s' }} onMouseOver={(e) => e.target.style.transform = 'scale(1.05)'} onMouseOut={(e) => e.target.style.transform = 'scale(1)'}>
+          <button type="submit" style={{ padding: '0.85rem 1.75rem', borderRadius: '30px', border: 'none', background: 'linear-gradient(135deg, #4c1d95, #db2777)', color: 'white', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 0 20px rgba(219, 39, 119, 0.6), inset 0 2px 2px rgba(255,255,255,0.4)', transition: 'transform 0.1s', letterSpacing: '0.5px' }} onMouseOver={(e) => e.target.style.transform = 'scale(1.05)'} onMouseOut={(e) => e.target.style.transform = 'scale(1)'}>
             {editingMessage ? 'Save' : 'Send'}
           </button>
         </form>
