@@ -1,12 +1,41 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { db } from "../../lib/firebase";
+import { doc, onSnapshot } from "firebase/firestore";
 import ChatRoom from "./ChatRoom";
 import MediaGallery from "./MediaGallery";
 import VideoCall from "./VideoCall";
 
 export default function PrivateApp({ user }) {
   const [activeTab, setActiveTab] = useState("chat");
+  const [streak, setStreak] = useState(0);
   const otherUser = user === "veeku" ? "suki" : "veeku";
+
+  useEffect(() => {
+    const streakRef = doc(db, "meta", "photo_streak");
+    const unsubscribe = onSnapshot(streakRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        const today = new Date().toISOString().split("T")[0];
+        
+        if (data.lastCompletedDate) {
+          const last = new Date(data.lastCompletedDate);
+          const now = new Date(today);
+          const diffDays = Math.ceil(Math.abs(now - last) / (1000 * 60 * 60 * 24)); 
+          
+          if (diffDays > 1 && data.lastCompletedDate !== today) {
+            setStreak(0);
+          } else {
+            setStreak(data.count || 0);
+          }
+        } else {
+          setStreak(data.count || 0);
+        }
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   return (
     <div className="app-container">
@@ -56,7 +85,10 @@ export default function PrivateApp({ user }) {
               {otherUser.charAt(0).toUpperCase()}
             </div>
             <div>
-              <h3 style={{ margin: 0, color: 'white' }}>{otherUser}</h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <h3 style={{ margin: 0, color: 'white' }}>{otherUser}</h3>
+                {streak > 0 && <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>{streak} 🔥</span>}
+              </div>
               <span style={{ fontSize: '0.8rem', color: '#10b981' }}>● Online (Stealth Mode)</span>
             </div>
           </div>

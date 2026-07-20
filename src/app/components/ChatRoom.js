@@ -7,7 +7,6 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 export default function ChatRoom({ user, otherUser }) {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
-  const [streak, setStreak] = useState({ count: 0, lastDate: null });
   const [uploading, setUploading] = useState(false);
   
   const [editingMessage, setEditingMessage] = useState(null);
@@ -31,7 +30,6 @@ export default function ChatRoom({ user, otherUser }) {
       const msgs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setMessages(msgs);
       
-      // Update unseen messages to seen
       msgs.forEach(msg => {
         if (msg.sender !== user && msg.status !== "seen") {
           updateDoc(doc(db, "messages", msg.id), { status: "seen" });
@@ -41,56 +39,44 @@ export default function ChatRoom({ user, otherUser }) {
     return () => unsubscribe();
   }, [user]);
 
-  // Fetch and calculate streak
-  useEffect(() => {
-    const fetchStreak = async () => {
-      const streakRef = doc(db, "meta", "streak");
-      const docSnap = await getDoc(streakRef);
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        const today = new Date().toISOString().split("T")[0];
-        
-        if (data.lastDate) {
-          const last = new Date(data.lastDate);
-          const now = new Date(today);
-          const diffTime = Math.abs(now - last);
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-          
-          if (diffDays > 1 && data.lastDate !== today) {
-            setStreak({ count: 0, lastDate: today });
-          } else {
-            setStreak(data);
-          }
-        }
-      } else {
-        await setDoc(streakRef, { count: 0, lastDate: null });
-      }
-    };
-    fetchStreak();
-  }, []);
-
-  const updateStreak = async () => {
+  const updatePhotoStreak = async () => {
     const today = new Date().toISOString().split("T")[0];
-    const streakRef = doc(db, "meta", "streak");
+    const streakRef = doc(db, "meta", "photo_streak");
     const docSnap = await getDoc(streakRef);
     
-    let newCount = 1;
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      if (data.lastDate === today) return; 
-      
-      const last = new Date(data.lastDate || today);
-      const now = new Date(today);
-      const diffTime = Math.abs(now - last);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
-      if (diffDays === 1) {
-        newCount = (data.count || 0) + 1;
+    let data = { count: 0, lastCompletedDate: null };
+    if (docSnap.exists()) data = docSnap.data();
+    
+    data[`${user}_latest`] = today;
+    
+    if (data[`${otherUser}_latest`] === today) {
+      if (data.lastCompletedDate !== today) {
+        const last = data.lastCompletedDate ? new Date(data.lastCompletedDate) : null;
+        const now = new Date(today);
+        let newCount = 1;
+        
+        if (last) {
+          const diffDays = Math.ceil(Math.abs(now - last) / (1000 * 60 * 60 * 24));
+          if (diffDays === 1) {
+            newCount = (data.count || 0) + 1;
+          }
+        }
+        
+        data.count = newCount;
+        data.lastCompletedDate = today;
+      }
+    } else {
+      if (data.lastCompletedDate && data.lastCompletedDate !== today) {
+         const last = new Date(data.lastCompletedDate);
+         const now = new Date(today);
+         const diffDays = Math.ceil(Math.abs(now - last) / (1000 * 60 * 60 * 24));
+         if (diffDays > 1) {
+           data.count = 0; 
+         }
       }
     }
     
-    await setDoc(streakRef, { count: newCount, lastDate: today }, { merge: true });
-    setStreak({ count: newCount, lastDate: today });
+    await setDoc(streakRef, data, { merge: true });
   };
 
   const sendMessage = async (e) => {
@@ -125,7 +111,6 @@ export default function ChatRoom({ user, otherUser }) {
       }
 
       await addDoc(collection(db, "messages"), msgData);
-      updateStreak();
     }
   };
 
@@ -167,7 +152,11 @@ export default function ChatRoom({ user, otherUser }) {
         }
 
         await addDoc(collection(db, "messages"), msgData);
-        updateStreak();
+        
+        if (fileType === 'image') {
+          updatePhotoStreak();
+        }
+        
         setUploading(false);
       }
     );
@@ -184,10 +173,9 @@ export default function ChatRoom({ user, otherUser }) {
     setEditingMessage(null);
   };
 
-  // Group messages by date
   const groupedMessages = {};
   messages.forEach(msg => {
-    if (!msg.timestamp) return; // Ignore messages still being saved to server
+    if (!msg.timestamp) return; 
     const dateObj = msg.timestamp.toDate ? msg.timestamp.toDate() : new Date();
     const dateStr = dateObj.toLocaleDateString();
     if (!groupedMessages[dateStr]) groupedMessages[dateStr] = [];
@@ -201,10 +189,6 @@ export default function ChatRoom({ user, otherUser }) {
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', minHeight: 0 }}>
-      <div style={{ padding: '0.75rem', backgroundColor: 'var(--panel-bg)', textAlign: 'center', fontSize: '0.875rem' }}>
-        Current Streak: {streak.count} 🔥
-      </div>
-      
       <div style={{ flex: 1, padding: '1.5rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         {messages.length === 0 ? (
           <div style={{ textAlign: 'center', color: 'var(--text-secondary)', marginTop: '2rem' }}>
@@ -264,7 +248,6 @@ export default function ChatRoom({ user, otherUser }) {
         <div ref={messagesEndRef} />
       </div>
       
-      {/* Context Action Banner (Editing or Replying) */}
       {(editingMessage || replyingTo) && (
         <div style={{ padding: '0.75rem 1.5rem', backgroundColor: '#1e293b', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
