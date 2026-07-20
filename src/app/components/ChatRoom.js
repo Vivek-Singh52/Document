@@ -1,8 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { db, storage } from "../../lib/firebase";
+import { db } from "../../lib/firebase";
 import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 export default function ChatRoom({ user, otherUser }) {
   const [messages, setMessages] = useState([]);
@@ -129,21 +128,22 @@ export default function ChatRoom({ user, otherUser }) {
     setUploading(true);
     const fileType = file.type.startsWith('image/') ? 'image' : file.type.startsWith('video/') ? 'video' : 'document';
     
-    const filename = `${Date.now()}-${file.name}`;
-    const storageRef = ref(storage, `shared/${filename}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "pg0wh8wp"); // Your unsigned preset
 
-    uploadTask.on('state_changed', 
-      (snapshot) => {}, 
-      (error) => {
-        console.error("Upload failed", error);
-        setUploading(false);
-      }, 
-      async () => {
-        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+    try {
+      const response = await fetch("https://api.cloudinary.com/v1_1/oudj31ln/auto/upload", {
+        method: "POST",
+        body: formData
+      });
+      
+      const data = await response.json();
+      
+      if (data.secure_url) {
         const msgData = {
           text: file.name,
-          url: downloadURL,
+          url: data.secure_url,
           sender: user,
           timestamp: serverTimestamp(),
           type: fileType,
@@ -164,10 +164,15 @@ export default function ChatRoom({ user, otherUser }) {
         if (fileType === 'image') {
           updatePhotoStreak();
         }
-        
-        setUploading(false);
+      } else {
+        alert("Upload to Cloudinary failed: " + (data.error?.message || "Unknown error"));
       }
-    );
+    } catch (err) {
+      console.error("Upload failed", err);
+      alert("Failed to upload file to Cloudinary.");
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleEdit = (msg) => {
