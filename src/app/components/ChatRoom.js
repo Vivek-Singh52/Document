@@ -474,13 +474,29 @@ export default function ChatRoom({ user, otherUser }) {
                             </button>
                           ))}
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', paddingLeft: '0.5rem' }}>
-                          <button onClick={() => { handleReply(msg); setActiveMenuId(null); }} style={contextBtnStyle}>↩️ Reply</button>
+                        
+                        {/* Action Menu (Below) */}
+                        <div 
+                          onClick={(e) => e.stopPropagation()}
+                          style={{ 
+                            position: 'absolute', top: '100%', 
+                            right: msg.sender === user ? 0 : 'auto', 
+                            left: msg.sender === user ? 'auto' : 0, 
+                            backgroundColor: 'rgba(30, 41, 59, 0.95)', padding: '0.5rem 0', borderRadius: '16px', 
+                            zIndex: 10, display: 'flex', flexDirection: 'column', minWidth: '150px',
+                            boxShadow: '0 10px 40px rgba(0,0,0,0.8)', borderTop: '1.5px solid rgba(255,255,255,0.3)',
+                            borderBottom: '1px solid rgba(0,0,0,0.5)',
+                            marginTop: '0.5rem', animation: 'fadeIn 0.2s ease-out',
+                            backdropFilter: 'blur(20px)', overflow: 'hidden'
+                          }}
+                        >
+                          <button onClick={() => { handleReply(msg); setActiveMenuId(null); }} style={{ background: 'none', border: 'none', color: 'white', padding: '0.75rem 1.5rem', textAlign: 'left', cursor: 'pointer', fontSize: '1rem', borderBottom: '1px solid rgba(255,255,255,0.05)', transition: 'background 0.2s' }} onMouseOver={(e) => e.target.style.backgroundColor='rgba(255,255,255,0.1)'} onMouseOut={(e) => e.target.style.backgroundColor='transparent'}>Reply</button>
                           {canEdit && (
-                            <button onClick={() => { handleEdit(msg); setActiveMenuId(null); }} style={contextBtnStyle}>✏️ Edit</button>
+                            <button onClick={() => { setEditingMessage(msg.id); setNewMessage(msg.content); setActiveMenuId(null); }} style={{ background: 'none', border: 'none', color: 'white', padding: '0.75rem 1.5rem', textAlign: 'left', cursor: 'pointer', fontSize: '1rem', borderBottom: '1px solid rgba(255,255,255,0.05)', transition: 'background 0.2s' }} onMouseOver={(e) => e.target.style.backgroundColor='rgba(255,255,255,0.1)'} onMouseOut={(e) => e.target.style.backgroundColor='transparent'}>Edit</button>
                           )}
+                          <button onClick={() => setActiveMenuId(null)} style={{ background: 'none', border: 'none', color: '#ef4444', padding: '0.75rem 1.5rem', textAlign: 'left', cursor: 'pointer', fontSize: '1rem', transition: 'background 0.2s' }} onMouseOver={(e) => e.target.style.backgroundColor='rgba(255,255,255,0.1)'} onMouseOut={(e) => e.target.style.backgroundColor='transparent'}>Cancel</button>
                         </div>
-                      </div>
+                      </>
                     )}
                   </div>
                 );
