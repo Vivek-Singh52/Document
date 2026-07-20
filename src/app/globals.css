@@ -113,6 +113,12 @@ body {
   flex-direction: column;
 }
 
+@media (max-width: 768px) {
+  .sidebar {
+    display: none !important;
+  }
+}
+
 .main-content {
   flex: 1;
   display: flex;

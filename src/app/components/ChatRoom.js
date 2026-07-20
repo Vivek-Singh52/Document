@@ -19,6 +19,7 @@ export default function ChatRoom({ user, otherUser }) {
   const [endDate, setEndDate] = useState("");
   const [otherTyping, setOtherTyping] = useState(false);
   const [activeMenuId, setActiveMenuId] = useState(null);
+  const [showSearchMenu, setShowSearchMenu] = useState(false);
 
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -292,35 +293,46 @@ export default function ChatRoom({ user, otherUser }) {
   }, []);
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', minHeight: 0, backgroundImage: 'url(/spiderman_bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', minHeight: 0, backgroundImage: 'url(/wallpaper.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       
-      {/* Search and Filter Bar */}
-      <div style={{ padding: '0.75rem', backgroundColor: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-        <input 
-          type="text" 
-          placeholder="Search chats..." 
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          style={{ flex: 1, minWidth: '150px', padding: '0.5rem 1rem', borderRadius: '20px', border: '1px solid var(--border-color)', backgroundColor: 'var(--panel-bg)', color: 'var(--text-primary)', outline: 'none' }}
-        />
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-          <input 
-            type="date" 
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            style={{ padding: '0.5rem', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--panel-bg)', color: 'var(--text-primary)' }}
-          />
-          <span style={{ color: 'var(--text-secondary)' }}>to</span>
-          <input 
-            type="date" 
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            style={{ padding: '0.5rem', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--panel-bg)', color: 'var(--text-primary)' }}
-          />
-        </div>
+      {/* 3-Dots Search Menu Trigger */}
+      <div style={{ position: 'absolute', top: '15px', right: '15px', zIndex: 30 }}>
+        <button 
+          onClick={() => setShowSearchMenu(!showSearchMenu)} 
+          style={{ background: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '0.5rem 0.8rem', borderRadius: '50%', cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.5)', transition: 'background 0.2s', fontWeight: 'bold' }}
+          title="Search Options"
+        >
+          ⋮
+        </button>
+        {showSearchMenu && (
+          <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '0.5rem', backgroundColor: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(15px)', borderRadius: '16px', padding: '1rem', width: '250px', boxShadow: '0 15px 40px rgba(0,0,0,0.7)', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <input 
+              type="text" 
+              placeholder="Search chats..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ width: '100%', marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', backgroundColor: 'rgba(255,255,255,0.05)', color: 'white', outline: 'none' }}
+            />
+            <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', marginBottom: '0.5rem', fontWeight: 'bold', textTransform: 'uppercase' }}>Filter by Date</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <input 
+                type="date" 
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                style={{ width: '100%', padding: '0.5rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', backgroundColor: 'rgba(255,255,255,0.05)', color: 'white', outline: 'none' }}
+              />
+              <input 
+                type="date" 
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                style={{ width: '100%', padding: '0.5rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', backgroundColor: 'rgba(255,255,255,0.05)', color: 'white', outline: 'none' }}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
-      <div style={{ flex: 1, padding: '1.5rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem', backgroundColor: 'rgba(0,0,0,0.4)' }}>
+      <div style={{ flex: 1, padding: '1.5rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem', backgroundColor: 'rgba(0,0,0,0.4)', paddingBottom: '2rem' }}>
         {filteredMessages.length === 0 ? (
           <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.7)', marginTop: '2rem', backgroundColor: 'rgba(0,0,0,0.5)', padding: '1rem', borderRadius: '12px', alignSelf: 'center' }}>
             {messages.length === 0 ? `Start of your secure conversation with ${otherUser}.` : `No messages match your search.`}
@@ -341,14 +353,14 @@ export default function ChatRoom({ user, otherUser }) {
                     <div 
                       onClick={(e) => { e.stopPropagation(); setActiveMenuId(activeMenuId === msg.id ? null : msg.id); }}
                       style={{
-                        backgroundColor: msg.sender === user ? 'rgba(56, 189, 248, 0.85)' : 'rgba(30, 41, 59, 0.85)',
-                        backdropFilter: 'blur(8px)',
+                        backgroundColor: msg.sender === user ? 'rgba(56, 189, 248, 0.85)' : 'rgba(30, 41, 59, 0.9)',
+                        backdropFilter: 'blur(12px)',
                         color: msg.sender === user ? 'white' : 'var(--text-primary)',
-                        padding: '0.5rem 0.75rem',
-                        borderRadius: msg.sender === user ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+                        padding: '0.6rem 1rem',
+                        borderRadius: msg.sender === user ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
                         wordBreak: 'break-word',
-                        boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
-                        border: '1px solid rgba(255,255,255,0.1)',
+                        boxShadow: '0 8px 25px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.2)',
+                        border: '1px solid rgba(255,255,255,0.15)',
                         cursor: 'pointer',
                         position: 'relative'
                       }}
@@ -382,8 +394,15 @@ export default function ChatRoom({ user, otherUser }) {
                         {msg.edited && <span>(edited)</span>}
                         <span>{getFormatTime(msg.dateObj)}</span>
                         {msg.sender === user && (
-                          <span style={{ color: msg.status === 'seen' ? '#38bdf8' : 'rgba(255,255,255,0.7)' }}>
-                            {msg.status === 'seen' ? '✓✓' : msg.status === 'delivered' ? '✓✓' : '✓'}
+                          <span style={{ display: 'flex', alignItems: 'center', color: msg.status === 'seen' ? '#38bdf8' : 'rgba(255,255,255,0.7)', marginLeft: '4px' }}>
+                            {msg.status === 'sent' ? (
+                              <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            ) : (
+                              <div style={{ position: 'relative', width: '18px', height: '14px' }}>
+                                <svg style={{ position: 'absolute', left: 0 }} viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <svg style={{ position: 'absolute', left: '4px' }} viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                              </div>
+                            )}
                           </span>
                         )}
                       </div>
@@ -461,7 +480,7 @@ export default function ChatRoom({ user, otherUser }) {
         </div>
       )}
 
-      <div style={{ padding: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(10px)' }}>
+      <div style={{ margin: '0 1rem 1rem 1rem', padding: '0.5rem', borderRadius: '30px', backgroundColor: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(20px)', boxShadow: '0 15px 35px rgba(0,0,0,0.8), inset 0 1px 1px rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.1)' }}>
         <form onSubmit={sendMessage} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <input 
             type="file" 
@@ -472,10 +491,10 @@ export default function ChatRoom({ user, otherUser }) {
           <button 
             type="button" 
             onClick={() => fileInputRef.current?.click()} 
-            style={{ padding: '0.75rem', borderRadius: '50%', border: 'none', backgroundColor: 'rgba(255,255,255,0.1)', color: 'white', cursor: 'pointer', transition: 'background 0.2s' }}
+            style={{ padding: '0.75rem', borderRadius: '50%', border: 'none', backgroundColor: 'transparent', color: 'white', cursor: 'pointer', transition: 'background 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             disabled={uploading}
-            onMouseOver={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.2)'}
-            onMouseOut={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.1)'}
+            onMouseOver={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.1)'}
+            onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
           >
             {uploading ? '⏳' : '📎'}
           </button>
@@ -485,11 +504,11 @@ export default function ChatRoom({ user, otherUser }) {
             placeholder="Type a message..." 
             value={newMessage}
             onChange={handleTyping}
-            style={{ flex: 1, padding: '0.75rem 1.25rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.2)', backgroundColor: 'rgba(255,255,255,0.05)', color: 'white', outline: 'none', transition: 'border 0.2s' }}
-            onFocus={(e) => e.target.style.border = '1px solid rgba(56, 189, 248, 0.5)'}
-            onBlur={(e) => e.target.style.border = '1px solid rgba(255,255,255,0.2)'}
+            style={{ flex: 1, padding: '0.75rem 1.25rem', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'rgba(255,255,255,0.05)', color: 'white', outline: 'none', transition: 'border 0.2s, background 0.2s' }}
+            onFocus={(e) => { e.target.style.border = '1px solid rgba(56, 189, 248, 0.5)'; e.target.style.backgroundColor = 'rgba(255,255,255,0.1)' }}
+            onBlur={(e) => { e.target.style.border = '1px solid rgba(255,255,255,0.1)'; e.target.style.backgroundColor = 'rgba(255,255,255,0.05)' }}
           />
-          <button type="submit" style={{ padding: '0.75rem 1.5rem', borderRadius: '20px', border: 'none', backgroundColor: 'var(--accent-color)', color: 'white', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 4px 10px rgba(56, 189, 248, 0.3)' }}>
+          <button type="submit" style={{ padding: '0.75rem 1.5rem', borderRadius: '24px', border: 'none', backgroundColor: 'var(--accent-color)', color: 'white', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 4px 15px rgba(99, 102, 241, 0.4)' }}>
             {editingMessage ? 'Save' : 'Send'}
           </button>
         </form>
