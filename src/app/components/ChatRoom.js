@@ -236,7 +236,7 @@ export default function ChatRoom({ user, otherUser }) {
                   }}>
                     {msg.replyTo && (
                       <div style={{ backgroundColor: 'rgba(0,0,0,0.2)', padding: '0.5rem', borderRadius: '8px', marginBottom: '0.5rem', fontSize: '0.85rem', borderLeft: '3px solid #10b981' }}>
-                        <strong style={{ color: msg.replyTo.sender === user ? '#60a5fa' : '#34d399' }}>{msg.replyTo.sender}</strong>
+                        <strong style={{ color: msg.replyTo.sender === user ? '#60a5fa' : '#34d399' }}>{msg.replyTo.sender === user ? 'You' : msg.replyTo.sender}</strong>
                         <div style={{ opacity: 0.8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{msg.replyTo.text}</div>
                       </div>
                     )}
@@ -268,7 +268,7 @@ export default function ChatRoom({ user, otherUser }) {
       {(editingMessage || replyingTo) && (
         <div style={{ padding: '0.75rem 1.5rem', backgroundColor: '#1e293b', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <span style={{ fontWeight: 'bold', color: '#38bdf8' }}>{editingMessage ? 'Editing message' : `Replying to ${replyingTo.sender}`}</span>
+            <span style={{ fontWeight: 'bold', color: '#38bdf8' }}>{editingMessage ? 'Editing message' : `Replying to ${replyingTo.sender === user ? 'You' : replyingTo.sender}`}</span>
             <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '300px' }}>
               {editingMessage ? '' : (replyingTo.type === 'text' ? replyingTo.text : 'Media')}
             </div>
