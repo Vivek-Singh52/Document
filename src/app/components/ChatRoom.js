@@ -270,7 +270,6 @@ export default function ChatRoom({ user, otherUser }) {
             ref={fileInputRef} 
             onChange={handleFileUpload} 
             style={{ display: 'none' }} 
-            accept="image/*,video/*,.pdf,.doc,.docx" 
           />
           <button 
             type="button" 
