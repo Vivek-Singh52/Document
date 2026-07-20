@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { db } from "../../lib/firebase";
-import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import Lightbox from "./Lightbox";
 
 export default function ChatRoom({ user, otherUser }) {
   const [messages, setMessages] = useState([]);
@@ -10,6 +11,7 @@ export default function ChatRoom({ user, otherUser }) {
   
   const [editingMessage, setEditingMessage] = useState(null);
   const [replyingTo, setReplyingTo] = useState(null);
+  const [lightboxData, setLightboxData] = useState(null);
 
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -186,6 +188,22 @@ export default function ChatRoom({ user, otherUser }) {
     setEditingMessage(null);
   };
 
+  const handleMediaClick = (msg) => {
+    const mediaMessages = messages.filter(m => m.type === 'image' || m.type === 'video');
+    const index = mediaMessages.findIndex(m => m.id === msg.id);
+    if (index !== -1) {
+      setLightboxData({ mediaList: mediaMessages, initialIndex: index });
+    }
+  };
+
+  const handleDeleteMedia = async (id) => {
+    try {
+      await deleteDoc(doc(db, "messages", id));
+    } catch (e) {
+      console.error("Failed to delete media", e);
+    }
+  };
+
   const groupedMessages = {};
   messages.forEach(msg => {
     const dateObj = msg.timestamp && msg.timestamp.toDate ? msg.timestamp.toDate() : new Date();
@@ -238,8 +256,21 @@ export default function ChatRoom({ user, otherUser }) {
                     )}
 
                     {msg.type === 'text' && <div>{msg.text}</div>}
-                    {msg.type === 'image' && <img src={msg.url} alt="Shared image" style={{ maxWidth: '100%', borderRadius: '8px' }} />}
-                    {msg.type === 'video' && <video src={msg.url} controls style={{ maxWidth: '100%', borderRadius: '8px' }} />}
+                    {msg.type === 'image' && (
+                      <img 
+                        src={msg.url} 
+                        alt="Shared image" 
+                        onClick={() => handleMediaClick(msg)}
+                        style={{ maxWidth: '100%', borderRadius: '8px', cursor: 'pointer' }} 
+                      />
+                    )}
+                    {msg.type === 'video' && (
+                      <video 
+                        src={msg.url} 
+                        onClick={() => handleMediaClick(msg)}
+                        style={{ maxWidth: '100%', borderRadius: '8px', cursor: 'pointer' }} 
+                      />
+                    )}
                     {msg.type === 'document' && <a href={msg.url} target="_blank" rel="noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>📄 {msg.text}</a>}
 
                     <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '0.3rem', marginTop: '0.25rem', fontSize: '0.65rem', opacity: 0.8 }}>
@@ -304,6 +335,15 @@ export default function ChatRoom({ user, otherUser }) {
           </button>
         </form>
       </div>
+
+      {lightboxData && (
+        <Lightbox 
+          mediaList={lightboxData.mediaList}
+          initialIndex={lightboxData.initialIndex}
+          onClose={() => setLightboxData(null)}
+          onDelete={handleDeleteMedia}
+        />
+      )}
     </div>
   );
 }

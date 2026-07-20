@@ -1,10 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
 import { db } from "../../lib/firebase";
-import { collection, query, orderBy, onSnapshot, where } from "firebase/firestore";
+import { collection, query, orderBy, onSnapshot, doc, deleteDoc } from "firebase/firestore";
+import Lightbox from "./Lightbox";
 
 export default function MediaGallery() {
   const [media, setMedia] = useState([]);
+  const [lightboxData, setLightboxData] = useState(null);
 
   useEffect(() => {
     // We can query all messages that are images or videos
@@ -16,7 +18,20 @@ export default function MediaGallery() {
       setMedia(msgs);
     });
     return () => unsubscribe();
+    return () => unsubscribe();
   }, []);
+
+  const handleMediaClick = (index) => {
+    setLightboxData({ mediaList: media, initialIndex: index });
+  };
+
+  const handleDeleteMedia = async (id) => {
+    try {
+      await deleteDoc(doc(db, "messages", id));
+    } catch (e) {
+      console.error("Failed to delete media", e);
+    }
+  };
 
   return (
     <div style={{ flex: 1, padding: '1.5rem', overflowY: 'auto' }}>
@@ -26,8 +41,12 @@ export default function MediaGallery() {
         <div style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>No media shared yet.</div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '1rem' }}>
-          {media.map((item) => (
-            <div key={item.id} style={{ aspectRatio: '1/1', backgroundColor: 'var(--panel-bg)', borderRadius: '8px', overflow: 'hidden' }}>
+          {media.map((item, index) => (
+            <div 
+              key={item.id} 
+              onClick={() => handleMediaClick(index)}
+              style={{ aspectRatio: '1/1', backgroundColor: 'var(--panel-bg)', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer' }}
+            >
               {item.type === 'image' ? (
                 <img src={item.url} alt="Gallery item" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : (
@@ -36,6 +55,15 @@ export default function MediaGallery() {
             </div>
           ))}
         </div>
+      )}
+
+      {lightboxData && (
+        <Lightbox 
+          mediaList={lightboxData.mediaList}
+          initialIndex={lightboxData.initialIndex}
+          onClose={() => setLightboxData(null)}
+          onDelete={handleDeleteMedia}
+        />
       )}
     </div>
   );
