@@ -175,8 +175,7 @@ export default function ChatRoom({ user, otherUser }) {
 
   const groupedMessages = {};
   messages.forEach(msg => {
-    if (!msg.timestamp) return; 
-    const dateObj = msg.timestamp.toDate ? msg.timestamp.toDate() : new Date();
+    const dateObj = msg.timestamp && msg.timestamp.toDate ? msg.timestamp.toDate() : new Date();
     const dateStr = dateObj.toLocaleDateString();
     if (!groupedMessages[dateStr]) groupedMessages[dateStr] = [];
     groupedMessages[dateStr].push({ ...msg, dateObj });
