@@ -85,7 +85,7 @@ export default function PrivateApp({ user }) {
             onClick={() => setShowMobileMenu(!showMobileMenu)} 
             style={{ display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer', position: 'relative' }}
           >
-            <div style={{ width: '45px', height: '45px', borderRadius: '50%', backgroundColor: 'var(--accent-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.2rem', color: 'white', boxShadow: '0 4px 10px rgba(99, 102, 241, 0.4)' }}>
+            <div className="avatar-glow" style={{ width: '45px', height: '45px', borderRadius: '50%', backgroundColor: 'var(--accent-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.2rem', color: 'white', boxShadow: '0 4px 10px rgba(99, 102, 241, 0.4)' }}>
               {otherUser.charAt(0).toUpperCase()}
             </div>
             <div>

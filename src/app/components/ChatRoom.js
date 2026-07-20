@@ -349,7 +349,7 @@ export default function ChatRoom({ user, otherUser }) {
                 const canEdit = msg.sender === user && msg.type === 'text' && (Date.now() - msgTime <= 5 * 60 * 1000);
                 
                 return (
-                  <div key={msg.id} style={{ display: 'flex', flexDirection: 'column', alignSelf: msg.sender === user ? 'flex-end' : 'flex-start', maxWidth: '75%', position: 'relative' }}>
+                  <div key={msg.id} className="animate-msg" style={{ display: 'flex', flexDirection: 'column', alignSelf: msg.sender === user ? 'flex-end' : 'flex-start', maxWidth: '75%', position: 'relative' }}>
                     <div 
                       onClick={(e) => { e.stopPropagation(); setActiveMenuId(activeMenuId === msg.id ? null : msg.id); }}
                       style={{
