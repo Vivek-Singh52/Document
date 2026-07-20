@@ -20,6 +20,8 @@ export default function ChatRoom({ user, otherUser }) {
   const [otherTyping, setOtherTyping] = useState(false);
   const [activeMenuId, setActiveMenuId] = useState(null);
   const [showSearchMenu, setShowSearchMenu] = useState(false);
+  const [textSize, setTextSize] = useState('medium');
+  const [swipeStartX, setSwipeStartX] = useState(null);
 
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -233,6 +235,20 @@ export default function ChatRoom({ user, otherUser }) {
     setActiveMenuId(null);
   };
 
+  const handleTouchStart = (e) => {
+    setSwipeStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e, msg) => {
+    if (swipeStartX === null) return;
+    const swipeEndX = e.changedTouches[0].clientX;
+    const diff = swipeEndX - swipeStartX;
+    if (diff > 50) { 
+      handleReply(msg);
+    }
+    setSwipeStartX(null);
+  };
+
   const handleMediaClick = (msg) => {
     const mediaMessages = messages.filter(m => m.type === 'image' || m.type === 'video');
     const index = mediaMessages.findIndex(m => m.id === msg.id);
@@ -305,7 +321,15 @@ export default function ChatRoom({ user, otherUser }) {
           ⋮
         </button>
         {showSearchMenu && (
-          <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '0.5rem', backgroundColor: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(15px)', borderRadius: '16px', padding: '1rem', width: '250px', boxShadow: '0 15px 40px rgba(0,0,0,0.7)', border: '1px solid rgba(255,255,255,0.1)' }}>
+          <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '0.5rem', backgroundColor: 'rgba(15, 23, 42, 0.98)', backdropFilter: 'blur(20px)', borderRadius: '16px', padding: '1rem', width: '250px', boxShadow: '0 15px 40px rgba(0,0,0,0.7)', border: '1px solid rgba(255,255,255,0.2)' }}>
+            
+            <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', marginBottom: '0.5rem', fontWeight: 'bold', textTransform: 'uppercase' }}>Text Size</div>
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+              <button onClick={() => setTextSize('small')} style={{ flex: 1, padding: '0.4rem', borderRadius: '8px', border: textSize === 'small' ? '1px solid #38bdf8' : '1px solid rgba(255,255,255,0.2)', backgroundColor: textSize === 'small' ? 'rgba(56,189,248,0.2)' : 'rgba(255,255,255,0.05)', color: 'white', fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s' }}>A</button>
+              <button onClick={() => setTextSize('medium')} style={{ flex: 1, padding: '0.4rem', borderRadius: '8px', border: textSize === 'medium' ? '1px solid #38bdf8' : '1px solid rgba(255,255,255,0.2)', backgroundColor: textSize === 'medium' ? 'rgba(56,189,248,0.2)' : 'rgba(255,255,255,0.05)', color: 'white', fontSize: '1rem', cursor: 'pointer', transition: 'all 0.2s' }}>A</button>
+              <button onClick={() => setTextSize('large')} style={{ flex: 1, padding: '0.4rem', borderRadius: '8px', border: textSize === 'large' ? '1px solid #38bdf8' : '1px solid rgba(255,255,255,0.2)', backgroundColor: textSize === 'large' ? 'rgba(56,189,248,0.2)' : 'rgba(255,255,255,0.05)', color: 'white', fontSize: '1.15rem', cursor: 'pointer', transition: 'all 0.2s' }}>A</button>
+            </div>
+
             <input 
               type="text" 
               placeholder="Search chats..." 
@@ -347,9 +371,16 @@ export default function ChatRoom({ user, otherUser }) {
               {groupedMessages[dateStr].map((msg) => {
                 const msgTime = msg.timestamp?.toDate ? msg.timestamp.toDate().getTime() : Date.now();
                 const canEdit = msg.sender === user && msg.type === 'text' && (Date.now() - msgTime <= 5 * 60 * 1000);
+                const msgFontSize = textSize === 'small' ? '0.85rem' : textSize === 'large' ? '1.15rem' : '1rem';
                 
                 return (
-                  <div key={msg.id} className="animate-msg" style={{ display: 'flex', flexDirection: 'column', alignSelf: msg.sender === user ? 'flex-end' : 'flex-start', maxWidth: '75%', position: 'relative' }}>
+                  <div 
+                    key={msg.id} 
+                    className="animate-msg" 
+                    style={{ display: 'flex', flexDirection: 'column', alignSelf: msg.sender === user ? 'flex-end' : 'flex-start', maxWidth: '75%', position: 'relative' }}
+                    onTouchStart={handleTouchStart}
+                    onTouchEnd={(e) => handleTouchEnd(e, msg)}
+                  >
                     <div 
                       onClick={(e) => { e.stopPropagation(); setActiveMenuId(activeMenuId === msg.id ? null : msg.id); }}
                       style={{
@@ -357,6 +388,7 @@ export default function ChatRoom({ user, otherUser }) {
                         backdropFilter: 'blur(12px)',
                         color: msg.sender === user ? 'white' : 'var(--text-primary)',
                         padding: '0.6rem 1rem',
+                        fontSize: msgFontSize,
                         borderRadius: msg.sender === user ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
                         wordBreak: 'break-word',
                         boxShadow: '0 8px 25px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.2)',
@@ -423,9 +455,9 @@ export default function ChatRoom({ user, otherUser }) {
                           position: 'absolute', top: '100%', 
                           right: msg.sender === user ? 0 : 'auto', 
                           left: msg.sender === user ? 'auto' : 0, 
-                          backgroundColor: '#0f172a', padding: '0.5rem', borderRadius: '12px', 
+                          backgroundColor: 'rgba(15, 23, 42, 0.98)', padding: '0.5rem', borderRadius: '12px', 
                           zIndex: 10, display: 'flex', gap: '0.25rem', 
-                          boxShadow: '0 10px 25px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)',
+                          boxShadow: '0 10px 30px rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.2)',
                           marginTop: '0.5rem', animation: 'fadeIn 0.2s ease-out'
                         }}
                       >
@@ -480,7 +512,7 @@ export default function ChatRoom({ user, otherUser }) {
         </div>
       )}
 
-      <div style={{ margin: '0 1rem 1rem 1rem', padding: '0.5rem', borderRadius: '30px', backgroundColor: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(20px)', boxShadow: '0 15px 35px rgba(0,0,0,0.8), inset 0 1px 1px rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.1)' }}>
+      <div style={{ margin: '0 1rem 1rem 1rem', padding: '0.5rem', borderRadius: '30px', backgroundColor: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(25px)', boxShadow: '0 15px 40px rgba(0,0,0,0.9), inset 0 2px 2px rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.15)' }}>
         <form onSubmit={sendMessage} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <input 
             type="file" 
@@ -501,14 +533,14 @@ export default function ChatRoom({ user, otherUser }) {
           
           <input 
             type="text" 
-            placeholder="Type a message..." 
+            placeholder="Type a message... (swipe right to reply)" 
             value={newMessage}
             onChange={handleTyping}
-            style={{ flex: 1, padding: '0.75rem 1.25rem', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'rgba(255,255,255,0.05)', color: 'white', outline: 'none', transition: 'border 0.2s, background 0.2s' }}
-            onFocus={(e) => { e.target.style.border = '1px solid rgba(56, 189, 248, 0.5)'; e.target.style.backgroundColor = 'rgba(255,255,255,0.1)' }}
-            onBlur={(e) => { e.target.style.border = '1px solid rgba(255,255,255,0.1)'; e.target.style.backgroundColor = 'rgba(255,255,255,0.05)' }}
+            style={{ flex: 1, padding: '0.75rem 1.25rem', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.15)', backgroundColor: 'rgba(255,255,255,0.08)', color: 'white', outline: 'none', transition: 'border 0.2s, background 0.2s', fontSize: textSize === 'small' ? '0.85rem' : textSize === 'large' ? '1.15rem' : '1rem' }}
+            onFocus={(e) => { e.target.style.border = '1px solid rgba(99, 102, 241, 0.6)'; e.target.style.backgroundColor = 'rgba(255,255,255,0.12)' }}
+            onBlur={(e) => { e.target.style.border = '1px solid rgba(255,255,255,0.15)'; e.target.style.backgroundColor = 'rgba(255,255,255,0.08)' }}
           />
-          <button type="submit" style={{ padding: '0.75rem 1.5rem', borderRadius: '24px', border: 'none', backgroundColor: 'var(--accent-color)', color: 'white', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 4px 15px rgba(99, 102, 241, 0.4)' }}>
+          <button type="submit" style={{ padding: '0.75rem 1.5rem', borderRadius: '24px', border: 'none', background: 'linear-gradient(135deg, #6366f1, #a855f7)', color: 'white', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 0 15px rgba(168, 85, 247, 0.5)', transition: 'transform 0.1s' }} onMouseOver={(e) => e.target.style.transform = 'scale(1.05)'} onMouseOut={(e) => e.target.style.transform = 'scale(1)'}>
             {editingMessage ? 'Save' : 'Send'}
           </button>
         </form>

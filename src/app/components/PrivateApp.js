@@ -83,18 +83,25 @@ export default function PrivateApp({ user }) {
         <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(26, 29, 36, 0.85)', backdropFilter: 'blur(10px)', zIndex: 20 }}>
           <div 
             onClick={() => setShowMobileMenu(!showMobileMenu)} 
-            style={{ display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer', position: 'relative' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer', position: 'relative', padding: '0.25rem', borderRadius: '12px', transition: 'background 0.2s' }}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
           >
-            <div className="avatar-glow" style={{ width: '45px', height: '45px', borderRadius: '50%', backgroundColor: 'var(--accent-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.2rem', color: 'white', boxShadow: '0 4px 10px rgba(99, 102, 241, 0.4)' }}>
-              {otherUser.charAt(0).toUpperCase()}
+            <div className="gradient-ring">
+              <div className="avatar-glow" style={{ width: '45px', height: '45px', borderRadius: '50%', backgroundColor: 'var(--panel-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.2rem', color: 'white', border: '2px solid rgba(255,255,255,0.1)' }}>
+                {otherUser.charAt(0).toUpperCase()}
+              </div>
             </div>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <h3 style={{ margin: 0, color: 'white' }}>{otherUser}</h3>
+                <h3 style={{ margin: 0, color: 'white', letterSpacing: '0.5px' }}>{otherUser}</h3>
                 {streak > 0 && <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>{streak} 🔥</span>}
-                <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginLeft: '0.2rem' }}>▼</span>
+                <span style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.5)', marginLeft: '0.2rem' }}>▼</span>
               </div>
-              <span style={{ fontSize: '0.8rem', color: '#10b981' }}>● Online (Stealth Mode)</span>
+              <span style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ width: '6px', height: '6px', backgroundColor: '#10b981', borderRadius: '50%', display: 'inline-block' }}></span>
+                Online
+              </span>
             </div>
 
             {showMobileMenu && (
