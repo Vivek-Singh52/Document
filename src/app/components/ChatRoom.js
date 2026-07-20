@@ -200,7 +200,7 @@ export default function ChatRoom({ user, otherUser }) {
   };
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', minHeight: 0 }}>
       <div style={{ padding: '0.75rem', backgroundColor: 'var(--panel-bg)', textAlign: 'center', fontSize: '0.875rem' }}>
         Current Streak: {streak.count} 🔥
       </div>
