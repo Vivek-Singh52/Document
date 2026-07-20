@@ -313,7 +313,15 @@ export default function ChatRoom({ user, otherUser }) {
   }, []);
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', minHeight: 0, backgroundImage: 'url(/wallpaper.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, position: 'relative' }}>
+      
+      {/* Dynamic Spiderman Background */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+        backgroundImage: 'url(/wallpaper.jpg)', 
+        backgroundSize: 'cover', backgroundPosition: 'center',
+        opacity: 0.15, zIndex: 0, pointerEvents: 'none'
+      }}></div>
       
       {/* 3-Dots Search Menu Trigger */}
       <div style={{ position: 'absolute', top: '15px', right: '15px', zIndex: 30 }}>
@@ -530,7 +538,7 @@ export default function ChatRoom({ user, otherUser }) {
         </div>
       )}
 
-      <div style={{ padding: '0.5rem 1rem 1rem 1rem', backgroundColor: 'transparent', zIndex: 20 }}>
+      <div style={{ padding: '0.25rem 0.5rem 0.5rem 0.5rem', backgroundColor: 'transparent', zIndex: 20 }}>
         <div style={{ padding: '0.5rem', borderRadius: '40px', backgroundColor: 'rgba(10, 5, 20, 0.95)', backdropFilter: 'blur(30px)', boxShadow: '0 15px 40px rgba(0,0,0,0.9), 0 0 20px rgba(219, 39, 119, 0.25)', borderTop: '1.5px solid rgba(255,255,255,0.25)', borderLeft: '1px solid rgba(255,255,255,0.1)', borderRight: '1px solid rgba(255,255,255,0.1)', borderBottom: '1px solid rgba(0,0,0,0.8)' }}>
           <form onSubmit={sendMessage} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             <input 
