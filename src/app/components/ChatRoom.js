@@ -30,9 +30,13 @@ export default function ChatRoom({ user, otherUser }) {
       const msgs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setMessages(msgs);
       
-      msgs.forEach(msg => {
+      msgs.forEach(async msg => {
         if (msg.sender !== user && msg.status !== "seen") {
-          updateDoc(doc(db, "messages", msg.id), { status: "seen" });
+          try {
+            await updateDoc(doc(db, "messages", msg.id), { status: "seen" });
+          } catch (err) {
+            console.error("Failed to update seen status:", err);
+          }
         }
       });
     });
@@ -110,7 +114,11 @@ export default function ChatRoom({ user, otherUser }) {
         setReplyingTo(null);
       }
 
-      await addDoc(collection(db, "messages"), msgData);
+      try {
+        await addDoc(collection(db, "messages"), msgData);
+      } catch (err) {
+        alert("Failed to send text! Error: " + err.message + "\n\nPlease make sure your FIRESTORE rules (not just Storage rules) are set to true.");
+      }
     }
   };
 
